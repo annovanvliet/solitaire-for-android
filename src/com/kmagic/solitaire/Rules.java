@@ -15,12 +15,12 @@
 */ 
 package com.kmagic.solitaire;
 
-import android.os.Bundle;
-import android.util.Log;
-import android.graphics.Canvas;
-import java.lang.InterruptedException;
-import java.lang.Thread;
 import java.util.Stack;
+
+import android.os.Bundle;
+
+import com.kmagic.solitaire.Card.SuiteEnum;
+import com.kmagic.solitaire.Card.ValueEnum;
 
 
 public abstract class Rules {
@@ -585,15 +585,16 @@ class Spider extends Rules {
     if (event == EVENT_STACK_ADD) {
       if (anchor.GetCount() - anchor.GetHiddenCount() >= 13) {
         Card[] card = anchor.GetCards();
-        if (card[anchor.GetCount()-1].GetValue() == 1) {
-          int suit = card[anchor.GetCount()-1].GetSuit();
-          int val = 2;
-          for (int i = anchor.GetCount() - 2; i >= 0 && val < 14; i--, val++) {
-            if (card[i].GetValue() != val || card[i].GetSuit() != suit) {
+        if (card[anchor.GetCount()-1].getValue() == ValueEnum.ACE) {
+          SuiteEnum suit = card[anchor.GetCount()-1].getSuit();
+          ValueEnum val = ValueEnum.ACE;
+          for (int i = anchor.GetCount() - 2; i >= 0 && val != ValueEnum.KING; i--) {
+            if (!card[i].getValue().isPrevious(val) || card[i].getSuit() != suit) {
               break;
             }
+            val = card[i].getValue();
           }
-          if (val == 14) {
+          if (val == ValueEnum.KING) {
             for (int j = 0; j < 13; j++) {
               mCardAnchor[11].AddCard(anchor.PopCard());
             }

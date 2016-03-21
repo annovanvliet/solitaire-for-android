@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/menu_new_game"
+        android:showAsAction="ifRoom"
+        android:title="@string/menu_newgame">
+        <menu>
+         <item
+              android:id="@+id/menu_new_solitaire"
+              android:showAsAction="never"
+              android:title="@string/menu_solitaire">
+          </item>
+          <item
+              android:id="@+id/menu_new_spider"
+              android:showAsAction="never"
+              android:title="@string/menu_spider">
+          </item>
+          <item
+              android:id="@+id/menu_new_freecell"
+              android:showAsAction="never"
+              android:title="@string/menu_freecell">
+          </item>
+          <item
+              android:id="@+id/menu_new_fortythieves"
+              android:showAsAction="never"
+              android:title="@string/menu_fortythieves">
+          </item>
+        </menu>
+        
+    </item>
+    <item
+        android:id="@+id/menu_restart"
+        android:showAsAction="ifRoom"
+        android:title="@string/menu_restart">
+    </item>
+    <item
+        android:id="@+id/menu_options"
+        android:showAsAction="never"
+        android:title="@string/menu_options">
+    </item>
+    <item
+        android:id="@+id/menu_save_quit"
+        android:showAsAction="never"
+        android:title="@string/menu_save_quit">
+    </item>
+    <item
+        android:id="@+id/menu_quit"
+        android:showAsAction="never"
+        android:title="@string/menu_quit">
+    </item>
+    <item
+        android:id="@+id/menu_stats"
+        android:showAsAction="never"
+        android:title="@string/menu_stats">
+    </item>
+    <item
+        android:id="@+id/menu_help"
+        android:icon="@android:drawable/ic_menu_help"
+        android:showAsAction="never"
+        android:title="@string/menu_help">
+    </item>
+
+</menu>

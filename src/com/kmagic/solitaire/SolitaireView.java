@@ -32,8 +32,9 @@ import android.widget.TextView;
 
 import java.lang.Math;
 import java.lang.Runnable;
+import java.util.Map;
 import java.util.Stack;
-
+import java.util.TreeMap;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -41,6 +42,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.StreamCorruptedException;
+
+import com.kmagic.solitaire.Card.SuiteEnum;
+import com.kmagic.solitaire.Card.ValueEnum;
 
 // The brains of the operation
 public class SolitaireView extends View {
@@ -303,8 +307,8 @@ public class SolitaireView extends View {
           anchorHiddenCount[i] = mCardAnchor[i].GetHiddenCount();
           card = mCardAnchor[i].GetCards();
           for (int j = 0; j < anchorCardCount[i]; j++, cardCount++) {
-            value[cardCount] = card[j].GetValue();
-            suit[cardCount] = card[j].GetSuit();
+            value[cardCount] = card[j].getValue().ordinal() + 1;
+            suit[cardCount] = card[j].getSuit().ordinal();
           }
         }
 
@@ -513,12 +517,13 @@ public class SolitaireView extends View {
 
     mRules.HandleEvents();
   }
-
+  
   @Override
   public boolean onKeyDown(int keyCode, KeyEvent msg) {
     switch (keyCode) {
     case KeyEvent.KEYCODE_DPAD_CENTER:
     case KeyEvent.KEYCODE_SEARCH:
+    case KeyEvent.KEYCODE_VOLUME_DOWN:
       if (mViewMode == MODE_TEXT) {
         ChangeViewMode(MODE_NORMAL);
       } else if (mViewMode == MODE_NORMAL) {
@@ -526,10 +531,10 @@ public class SolitaireView extends View {
         Refresh();
       }
       return true;
-      case KeyEvent.KEYCODE_BACK:
-        Undo();
-        return true;
-      }
+    case KeyEvent.KEYCODE_BACK:
+      Undo();
+      return true;
+    }
     mRules.HandleEvents();
     return super.onKeyDown(keyCode, msg);
   }
@@ -783,7 +788,7 @@ public class SolitaireView extends View {
       if (move.GetAddDealCount()) {
         mRules.AddDealCount();
       }
-      if (mUndoStorage[0].GetValue() == 1) {
+      if (mUndoStorage[0].getValue() == ValueEnum.ACE) {
         for (int i = 0; i < mCardAnchor[from].GetCount(); i++) {
           Card card = mCardAnchor[from].GetCards()[i];
         }
@@ -824,50 +829,64 @@ public class SolitaireView extends View {
 
   // Simple function to check for a consistent state in Solitaire.
   private void SanityCheck() {
-    int cardCount;
-    int diffCardCount;
+    //int cardCount;
+    //int diffCardCount;
     int matchCount;
+    
+    Map<SuiteEnum, int[]> cards = new TreeMap<Card.SuiteEnum, int[]>();
+    
     String type = mRules.GetGameTypeString();
     if (type == "Spider1Suit") {
-      cardCount = 13;
+      cards.put(SuiteEnum.CLUBS, new int[13]);
+    } else if (type == "Spider2Suit") {
+      cards.put(SuiteEnum.CLUBS, new int[13]);
+      cards.put(SuiteEnum.DIAMONDS, new int[13]);
+    } else {
+      cards.put(SuiteEnum.CLUBS, new int[13]);
+      cards.put(SuiteEnum.DIAMONDS, new int[13]);
+      cards.put(SuiteEnum.SPADES, new int[13]);
+      cards.put(SuiteEnum.HEARTS, new int[13]);
+    }
+    if (type == "Spider1Suit") {
       matchCount = 8;
     } else if (type == "Spider2Suit") {
-      cardCount = 26;
       matchCount = 4;
     } else if (type == "Spider4Suit") {
-      cardCount = 52;
       matchCount = 2;
     } else if (type == "Forty Thieves") {
-      cardCount = 52;
       matchCount = 2;
     } else {
-      cardCount = 52;
       matchCount = 1;
     }
-    
-    int[] cards = new int[cardCount];
-    for (int i = 0; i < cardCount; i++) {
-      cards[i] = 0;
+
+    for (SuiteEnum suite : cards.keySet()) {
+      //int[] cards = new int[cardCount];
+      for (int i = 0; i < 13; i++) {
+        cards.get(suite)[i] = 0;
+      }
     }
     for (int i = 0; i < mCardAnchor.length; i++) {
       for (int j = 0; j < mCardAnchor[i].GetCount(); j++) {
         Card card = mCardAnchor[i].GetCards()[j];
-        int idx = card.GetSuit() * 13 + card.GetValue() - 1;
-        if (cards[idx] >= matchCount) {
+        int idx = card.getValue().ordinal();
+        if (cards.get(card.getSuit())[idx] >= matchCount) {
           mTextView.setTextSize(20);
           mTextView.setGravity(Gravity.CENTER);
-          DisplayText("Sanity Check Failed\nExtra: " + card.GetValue() + " " +card.GetSuit());
+          DisplayText("Sanity Check Failed\nExtra: " + card.getValue() + " " +card.getSuit());
           return;
         }
-        cards[idx]++;
+        cards.get(card.getSuit())[idx]++;
       }
     }
-    for (int i = 0; i < cardCount; i++) {
-      if (cards[i] != matchCount) {
-        mTextView.setTextSize(20);
-        mTextView.setGravity(Gravity.CENTER);
-        DisplayText("Sanity Check Failed\nMissing: " + (i %13 + 1) + " " + i / 13);
-        return;
+    for (SuiteEnum suite : cards.keySet()) {
+      // int[] cards = new int[cardCount];
+      for (int i = 0; i < 13; i++) {
+        if (cards.get(suite)[i] != matchCount) {
+          mTextView.setTextSize(20);
+          mTextView.setGravity(Gravity.CENTER);
+          DisplayText("Sanity Check Failed\nMissing: " + suite + " " + i );
+          return;
+        }
       }
     }
   }

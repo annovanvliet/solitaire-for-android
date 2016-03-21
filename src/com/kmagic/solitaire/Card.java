@@ -15,26 +15,144 @@
 */ 
 package com.kmagic.solitaire;
 
+import com.kmagic.solitaire.Card.SuiteEnum;
+import com.kmagic.solitaire.Card.ValueEnum;
+
+/**
+ * a Card with a value and a position.
+ *
+ * @author Anno van Vliet
+ *
+ */
 class Card {
+  
+  public enum SuiteEnum {
+    CLUBS(false),
+    DIAMONDS(true),
+    SPADES(false),
+    HEARTS(true);
 
-  public static final int CLUBS = 0;
-  public static final int DIAMONDS = 1;
-  public static final int SPADES = 2;
-  public static final int HEARTS = 3;
+    private final boolean red;
+    
+    private SuiteEnum( boolean red) {
+      this.red = red;
+    }
+    
+    /**
+     * @return a red Card
+     */
+    public boolean isRed() {
+      return red;
+    }
 
-  public static final int ACE = 1;
-  public static final int JACK = 11;
-  public static final int QUEEN = 12;
-  public static final int KING = 13;
-  public static final String TEXT[] = {
-    "A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"
-  };
+    /**
+     * @return a black Card
+     */
+    public boolean isBlack() {
+      return !isRed();
+    }
+
+    /**
+     * @param i
+     * @return
+     */
+    public static SuiteEnum valueOf(int i) {
+
+      for (SuiteEnum suite : values()) {
+        if ( suite.ordinal() == i )
+          return suite;
+        
+      }
+      return null;
+    }   
+  }
+
+//  public static final int CLUBS = 0;
+//  public static final int DIAMONDS = 1;
+//  public static final int SPADES = 2;
+//  public static final int HEARTS = 3;
+
+  public enum ValueEnum {
+    ACE("A"),
+    TWO("2"),
+    THREE("3"),
+    FOUR("4"),
+    FIVE("5"),
+    SIX("6"),
+    SEVEN("7"),
+    EIGHT("8"),
+    NINE("9"),
+    TEN("10"),
+    JACK("J"),
+    QUEEN("Q"),
+    KING("K");
+    
+    private final String text;
+
+    private ValueEnum(String text) {
+      this.text = text;
+    }
+    
+    /**
+     * @return the text
+     */
+    public String getText() {
+      return text;
+    }
+    
+    /**
+     * @param i
+     * @return
+     */
+    public static ValueEnum valueOf(int i) {
+
+      for (ValueEnum val : values()) {
+        if ( val.ordinal() == i )
+          return val;
+        
+      }
+      return null;
+    }
+
+    /**
+     * Is this a Face value?
+     * @return
+     */
+    public boolean isFace() {
+      return (this.ordinal() >= JACK.ordinal());
+    }
+
+    /**
+     * @param v2
+     * @return
+     */
+    public boolean isNext(ValueEnum v2) {
+      return v2.ordinal() == this.ordinal() + 1;
+    }   
+
+    /**
+     * @param v2
+     * @return
+     */
+    public boolean isPrevious(ValueEnum v2) {
+      return v2.ordinal() + 1 == this.ordinal();
+    }   
+
+  }
+  
+//  public static final int ACE = 1;
+//  public static final int JACK = 11;
+//  public static final int QUEEN = 12;
+//  public static final int KING = 13;
+//  public static final String TEXT[] = {
+//    "A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"
+//  };
 
   public static int WIDTH = 45;
   public static int HEIGHT = 64;
 
-  private int mValue;
-  private int mSuit;
+  private final ValueEnum mValue;
+  private final SuiteEnum mSuit;
   private float mX;
   private float mY;
 
@@ -51,17 +169,25 @@ class Card {
     }
   }
 
-  public Card(int value, int suit) {
+  public Card(ValueEnum value, SuiteEnum suit) {
     mValue = value;
     mSuit = suit;
     mX = 1;
     mY = 1;
   }
 
+  /**
+   * @param value
+   * @param i
+   */
+  public Card(int value, int suiteValue) {
+    this(ValueEnum.valueOf(value - 1), SuiteEnum.valueOf(suiteValue));
+  }
+
   public float GetX() { return mX; }
   public float GetY() { return mY; }
-  public int GetValue() { return mValue; }
-  public int GetSuit() { return mSuit; }
+  public ValueEnum getValue() { return mValue; }
+  public SuiteEnum getSuit() { return mSuit; }
 
   public void SetPosition(float x, float y) {
     mX = x;
@@ -71,6 +197,15 @@ class Card {
   public void MovePosition(float dx, float dy) {
     mX -= dx;
     mY -= dy;
+  }
+
+  /**
+   * @param card
+   * @return
+   */
+  public boolean isPrevious(Card previous) {
+    return ((this.getSuit().isRed()) == (previous.getSuit().isRed()) ||
+        this.getValue().isPrevious(previous.getValue()));
   }
 }
 

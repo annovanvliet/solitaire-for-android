@@ -19,27 +19,27 @@ import android.app.Activity;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.Window;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.SubMenu;
 import android.view.View;
+import android.view.Window;
 import android.widget.TextView;
 
 // Base activity class.
 public class Solitaire extends Activity {
-  private static final int MENU_NEW_GAME  = 1;
-  private static final int MENU_RESTART   = 2;
-  private static final int MENU_OPTIONS   = 3;
-  private static final int MENU_SAVE_QUIT = 4;
-  private static final int MENU_QUIT      = 5;
-  private static final int MENU_SOLITAIRE = 6;
-  private static final int MENU_SPIDER    = 7;
-  private static final int MENU_FREECELL  = 8;
-  private static final int MENU_FORTYTHIEVES = 9;
-  private static final int MENU_STATS     = 10;
-  private static final int MENU_HELP      = 11;
+  
+//  private static final int MENU_NEW_GAME  = 1;
+//  private static final int MENU_RESTART   = 2;
+//  private static final int MENU_OPTIONS   = 3;
+//  private static final int MENU_SAVE_QUIT = 4;
+//  private static final int MENU_QUIT      = 5;
+//  private static final int MENU_SOLITAIRE = 6;
+//  private static final int MENU_SPIDER    = 7;
+//  private static final int MENU_FREECELL  = 8;
+//  private static final int MENU_FORTYTHIEVES = 9;
+//  private static final int MENU_STATS     = 10;
+//  private static final int MENU_HELP      = 11;
 
   // View extracted from main.xml.
   private View mMainView;
@@ -100,56 +100,60 @@ public class Solitaire extends Activity {
 
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
+    
+    MenuInflater menuInflater = getMenuInflater();
+    menuInflater.inflate(R.menu.main, menu);
+
     super.onCreateOptionsMenu(menu);
 
-    SubMenu subMenu = menu.addSubMenu(0, MENU_NEW_GAME, 0, R.string.menu_newgame);
-    subMenu.add(0, MENU_SOLITAIRE, 0, R.string.menu_solitaire);
-    subMenu.add(0, MENU_SPIDER, 0, R.string.menu_spider);
-    subMenu.add(0, MENU_FREECELL, 0, R.string.menu_freecell);
-    subMenu.add(0, MENU_FORTYTHIEVES, 0, R.string.menu_fortythieves);
-
-    menu.add(0, MENU_RESTART, 0, R.string.menu_restart);
-    menu.add(0, MENU_OPTIONS, 0, R.string.menu_options);
-    menu.add(0, MENU_SAVE_QUIT, 0, R.string.menu_save_quit);
-    menu.add(0, MENU_QUIT, 0, R.string.menu_quit);
-    menu.add(0, MENU_STATS, 0, R.string.menu_stats);
-    menu.add(0, MENU_HELP, 0, R.string.menu_help);
+//    SubMenu subMenu = menu.addSubMenu(0, MENU_NEW_GAME, 0, R.string.menu_newgame);
+//    subMenu.add(0, MENU_SOLITAIRE, 0, R.string.menu_solitaire);
+//    subMenu.add(0, MENU_SPIDER, 0, R.string.menu_spider);
+//    subMenu.add(0, MENU_FREECELL, 0, R.string.menu_freecell);
+//    subMenu.add(0, MENU_FORTYTHIEVES, 0, R.string.menu_fortythieves);
+//
+//    menu.add(0, MENU_RESTART, 0, R.string.menu_restart);
+//    menu.add(0, MENU_OPTIONS, 0, R.string.menu_options);
+//    menu.add(0, MENU_SAVE_QUIT, 0, R.string.menu_save_quit);
+//    menu.add(0, MENU_QUIT, 0, R.string.menu_quit);
+//    menu.add(0, MENU_STATS, 0, R.string.menu_stats);
+//    menu.add(0, MENU_HELP, 0, R.string.menu_help);
     return true;
   }
 
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
-      case MENU_SOLITAIRE:
+      case R.id.menu_new_solitaire:
         mSolitaireView.InitGame(Rules.SOLITAIRE);
         break;
-      case MENU_SPIDER:
+      case R.id.menu_new_spider:
         mSolitaireView.InitGame(Rules.SPIDER);
         break;
-      case MENU_FREECELL:
+      case R.id.menu_new_freecell:
         mSolitaireView.InitGame(Rules.FREECELL);
         break;
-      case MENU_FORTYTHIEVES:
+      case R.id.menu_new_fortythieves:
         mSolitaireView.InitGame(Rules.FORTYTHIEVES);
         break;
-      case MENU_RESTART:
+      case R.id.menu_restart:
         mSolitaireView.RestartGame();
         break;
-      case MENU_STATS:
+      case R.id.menu_stats:
         DisplayStats();
         break;
-      case MENU_OPTIONS:
+      case R.id.menu_options:
         DisplayOptions();
         break;
-      case MENU_HELP:
+      case R.id.menu_help:
         mSolitaireView.DisplayHelp();
         break;
-      case MENU_SAVE_QUIT:
+      case R.id.menu_save_quit:
         mSolitaireView.SaveGame();
         mDoSave = false;
         finish();
         break;
-      case MENU_QUIT:
+      case R.id.menu_quit:
         mDoSave = false;
         finish();
         break;

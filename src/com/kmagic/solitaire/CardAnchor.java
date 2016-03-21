@@ -15,6 +15,9 @@
 */ 
 package com.kmagic.solitaire;
 
+import com.kmagic.solitaire.Card.SuiteEnum;
+import com.kmagic.solitaire.Card.ValueEnum;
+
 import android.graphics.Canvas;
 import android.util.Log;
 
@@ -496,9 +499,9 @@ class SeqSink extends CardAnchor {
 
     if (IsOverCard(x, y, close)) {
       if (moveCard.GetCount() == 1) {
-        if ((topCard == null && card.GetValue() == 1) ||
-            (topCard != null && card.GetSuit() == topCard.GetSuit() &&
-             card.GetValue() == topCard.GetValue() + 1)) {
+        if ((topCard == null && card.getValue() == ValueEnum.ACE) ||
+            (topCard != null && card.getSuit() == topCard.getSuit() &&
+             card.getValue().isPrevious(topCard.getValue()))) {
           return true;
         }
       }
@@ -510,9 +513,9 @@ class SeqSink extends CardAnchor {
   @Override
   public boolean DropSingleCard(Card card) {
     Card topCard = mCardCount > 0 ? mCard[mCardCount - 1] : null;
-    if ((topCard == null && card.GetValue() == 1) ||
-        (topCard != null && card.GetSuit() == topCard.GetSuit() &&
-         card.GetValue() == topCard.GetValue() + 1)) {
+    if ((topCard == null && card.getValue() == ValueEnum.ACE) ||
+        (topCard != null && card.getSuit() == topCard.getSuit() &&
+         card.getValue().isPrevious(topCard.getValue()))) {
       //AddCard(card);
       return true;
     }
@@ -534,11 +537,11 @@ class SuitSeqStack extends SeqStack {
 
     if (IsOverCard(x, y, close)) {
       if (topCard == null) {
-        if (card.GetValue() == Card.KING) {
+        if (card.getValue() == ValueEnum.KING) {
           return true;
         }        
-      } else if ((card.GetSuit()&1) != (topCard.GetSuit()&1) &&
-                 card.GetValue() == topCard.GetValue() - 1) {
+      } else if ((card.getSuit().isRed()) != (topCard.getSuit().isRed()) &&
+                 card.getValue().isNext(topCard.getValue())) {
         return true;
       }
     }
@@ -580,7 +583,7 @@ class SpiderStack extends SeqStack {
     float my = mCardCount > 0 ? topCard.GetY() : mY;
 
     if (IsOverCard(x, y, close)) {
-      if (topCard == null || card.GetValue() == topCard.GetValue() - 1) {
+      if (topCard == null || card.getValue().isNext(topCard.getValue())) {
         return true;
       }
     }
@@ -594,13 +597,14 @@ class SpiderStack extends SeqStack {
       return mCardCount;
 
     int retCount = 1;
-    int suit = mCard[mCardCount-1].GetSuit();
-    int val = mCard[mCardCount-1].GetValue();
+    SuiteEnum suit = mCard[mCardCount-1].getSuit();
+    ValueEnum val = mCard[mCardCount-1].getValue();
 
-    for (int i = mCardCount-2; i >= mHiddenCount; i--, retCount++, val++) {
-      if (mCard[i].GetSuit() != suit || mCard[i].GetValue() != val + 1) {
+    for (int i = mCardCount-2; i >= mHiddenCount; i--, retCount++) {
+      if (mCard[i].getSuit() != suit || !mCard[i].getValue().isPrevious(val)) {
         break;
       }
+      val = mCard[i].getValue();
     }
 
     return retCount;
@@ -624,8 +628,8 @@ class SpiderStack extends SeqStack {
     if (super.ExpandStack(x, y)) {
       Card bottom = mCard[mCardCount-1];
       Card second = mCard[mCardCount-2];
-      if (bottom.GetSuit() == second.GetSuit() &&
-          bottom.GetValue() == second.GetValue() - 1) {
+      if (bottom.getSuit() == second.getSuit() &&
+          bottom.getValue().isNext(second.getValue())) {
         return true;
       }
     }
@@ -663,8 +667,8 @@ class FreecellStack extends SeqStack {
         if (mRules.CountFreeSpaces() >= moveCard.GetCount()) {
           return true;
         }
-      } else if ((card.GetSuit()&1) != (topCard.GetSuit()&1) &&
-                 card.GetValue() == topCard.GetValue() - 1) {
+      } else if ((card.getSuit().isRed()) != (topCard.getSuit().isRed()) &&
+                 card.getValue().isNext(topCard.getValue())) {
         return true;
       }
     }
@@ -681,8 +685,8 @@ class FreecellStack extends SeqStack {
     int maxMoveCount = mRules.CountFreeSpaces() + 1;
 
     for (int i = mCardCount - 2; i >= 0 && retCount < maxMoveCount; i--, retCount++) {
-      if ((mCard[i].GetSuit()&1) == (mCard[i+1].GetSuit()&1) ||
-          mCard[i].GetValue() != mCard[i+1].GetValue() + 1) {
+      if ((mCard[i].getSuit().isRed() == mCard[i+1].getSuit().isRed()) ||
+          !mCard[i].getValue().isPrevious(mCard[i+1].getValue())) {
         break;
       }
     }
@@ -707,8 +711,8 @@ class FreecellStack extends SeqStack {
       if (mRules.CountFreeSpaces() > 0) {
         Card bottom = mCard[mCardCount-1];
         Card second = mCard[mCardCount-2];
-        if ((bottom.GetSuit()&1) != (second.GetSuit()&1) &&
-            bottom.GetValue() == second.GetValue() - 1) {
+        if ((bottom.getSuit().isRed() != second.getSuit().isRed()) &&
+            bottom.getValue().isNext(second.getValue())) {
           return true;
         }
       }
@@ -872,32 +876,32 @@ class GenericAnchor extends CardAnchor {
     if (topCard == null) {
       switch (mSTARTSEQ) {
         case GenericAnchor.START_KING:
-          return card.GetValue() == Card.KING;
+          return card.getValue() == ValueEnum.KING;
         case GenericAnchor.START_ANY:
         default:
           return true;
       }
     }
-    int value = card.GetValue();
-    int suit = card.GetSuit();
-    int tvalue = topCard.GetValue();
-    int tsuit = topCard.GetSuit();
+    ValueEnum value = card.getValue();
+    SuiteEnum suit = card.getSuit();
+    ValueEnum tvalue = topCard.getValue();
+    SuiteEnum tsuit = topCard.getSuit();
     // Fail if sequence is wrong
     switch (mBUILDSEQ){
     //WRAP_NOWRAP=1; //Building stacks do not wrap
     //WRAP_WRAP=2;   //Building stacks wraps around
       case GenericAnchor.SEQ_ASC:
-        if (value - tvalue != 1){
+        if (!value.isPrevious(tvalue)){
           return false;
         }
         break;
       case GenericAnchor.SEQ_DSC:
-        if (tvalue - value != 1){
+        if (!tvalue.isPrevious(value)){
           return false;
         }
         break;
       case GenericAnchor.SEQ_SEQ:
-        if (Math.abs(tvalue - value) != 1){
+        if (!tvalue.isPrevious(value) && !tvalue.isNext(value)){
           return false;
         }
         break;
@@ -905,13 +909,13 @@ class GenericAnchor extends CardAnchor {
     // Fail if suit is wrong
     switch (mBUILDSUIT){
       case GenericAnchor.SUIT_RB:
-        if (Math.abs(tsuit - suit)%2 == 0){  return false;  }
+        if (tsuit.isRed() == suit.isRed()) {  return false;  } //  Math.abs(tsuit - suit)%2 == 0)
         break;
       case GenericAnchor.SUIT_OTHER:
         if (tsuit == suit){  return false;  }
         break;
       case GenericAnchor.SUIT_COLOR:
-        if (Math.abs(tsuit - suit) != 2){  return false;  }
+        if (tsuit.isRed() != suit.isRed() ){  return false;  } // Math.abs(tsuit - suit) != 2
         break;
       case GenericAnchor.SUIT_SAME:
         if (tsuit != suit){  return false;  }
@@ -1065,39 +1069,37 @@ class GenericAnchor extends CardAnchor {
   public boolean is_seq_asc(int p1, int p2, boolean wrap){
     Card c1 = mCard[p1];
     Card c2 = mCard[p2];
-    int v1 = c1.GetValue();
-    int v2 = c2.GetValue();
+    ValueEnum v1 = c1.getValue();
+    ValueEnum v2 = c2.getValue();
     
-    if (v2 + 1 == v1){
+    if (v2.isNext(v1))
       return true;
-    }
+    
+//    if (v2 + 1 == v1){
+//      return true;
+//    }
     if (wrap){
-      if (v2 == Card.KING && v1 == Card.ACE){
+      if (v2 == ValueEnum.KING && v1 == ValueEnum.ACE){
         return true;
       }
     }
     return false;
   }
+  
   public boolean is_suit_rb(int p1, int p2){
     Card c1 = mCard[p1];
     Card c2 = mCard[p2];
-    int s1 = c1.GetSuit();
-    int s2 = c2.GetSuit();
-    if (  (s1 == Card.CLUBS || s1 == Card.SPADES) &&
-          (s2 == Card.HEARTS || s2 == Card.DIAMONDS)  ){
-      return true;
-    }
-    if (  (s1 == Card.HEARTS || s1 == Card.DIAMONDS) &&
-          (s2 == Card.CLUBS || s2 == Card.SPADES)  ){
-      return true;
-    }
-    return false;    
+    SuiteEnum s1 = c1.getSuit();
+    SuiteEnum s2 = c2.getSuit();
+    
+    return (s1.isRed() == s2.isBlack());
+    
   }
   public boolean is_suit_same(int p1, int p2){
-    return (mCard[p1].GetSuit() == mCard[p2].GetSuit());
+    return (mCard[p1].getSuit() == mCard[p2].getSuit());
   }
   public boolean is_suit_other(int p1, int p2){
-    return (mCard[p1].GetSuit() != mCard[p2].GetSuit());
+    return (mCard[p1].getSuit() != mCard[p2].getSuit());
   }  
 
   private void CheckSizing() {

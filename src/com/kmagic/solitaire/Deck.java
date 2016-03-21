@@ -17,47 +17,75 @@ package com.kmagic.solitaire;
 
 import java.util.Random;
 
+import com.kmagic.solitaire.Card.SuiteEnum;
+import com.kmagic.solitaire.Card.ValueEnum;
 
+/**
+ * Represent a stock of decks, which is shuffled and can be dealt.
+ *
+ */
 public class Deck {
 
   private Card[] mCard;
   private int mCardCount;
-  private int mTotalCards;
 
   public Deck(int decks) {
-    Init(decks, 4);
+    this(decks, 4);
   }
 
+  /**
+   * Create a stock of decks with each deck containing the specified amount of colors.
+   * 
+   * Each deck consists of 52 cards, so when only one color is used, each deck contains four card of each value and color.
+   * 
+   * @param decks number of decks
+   * @param suits number of colors
+   */
   public Deck(int decks, int suits) {
     if (suits == 2) {
       decks *= 2;
     } else if (suits == 1) {
       decks *= 4;
     }
-    Init(decks, suits);
+    init(decks, suits);
   }
 
-  private void Init(int decks, int suits) {
+  private void init(int decks, int suits) {
     mCardCount = decks * 13 * suits;
-    mTotalCards = mCardCount;
     mCard = new Card[mCardCount];
     for (int deck = 0; deck < decks; deck++) {
-      for (int suit = Card.CLUBS; suit < suits; suit++) {
-        for (int value = 0; value < 13; value++) {
-          mCard[deck*suits*13 + suit*Card.KING + value] = new Card(value+1, suit);
+      int i = 0;
+      for (SuiteEnum suit : SuiteEnum.values()) {
+        if ( i < suits ) {
+          int value = 0;
+          for (ValueEnum val : ValueEnum.values()) {
+            mCard[deck*suits*13 + i*13 + value] = new Card(val, suit);
+            value++;
+          }
         }
+        i++;
       }
     }
 
-    Shuffle();
-    Shuffle();
-    Shuffle();
+    shuffle();
+    shuffle();
+    shuffle();
   }
 
+  /**
+   * p]Push card back to stock.
+   * 
+   * @param card
+   */
   public void PushCard(Card card) {
     mCard[mCardCount++] = card;
   }
 
+  /**
+   * Get a card from stock.
+   * 
+   * @return null when stock is empty.
+   */
   public Card PopCard() {
     if (mCardCount > 0) {
       return mCard[--mCardCount];
@@ -69,7 +97,7 @@ public class Deck {
     return mCardCount == 0;
   }
 
-  public void Shuffle() {
+  private void shuffle() {
     int lastIdx = mCardCount - 1;
     int swapIdx;
     Card swapCard;
