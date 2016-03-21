@@ -15,7 +15,6 @@
 */ 
 package com.kmagic.solitaire;
 
-import android.app.Activity;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
@@ -26,21 +25,11 @@ import android.view.View;
 import android.view.Window;
 import android.widget.TextView;
 
-// Base activity class.
-public class Solitaire extends Activity {
-  
-//  private static final int MENU_NEW_GAME  = 1;
-//  private static final int MENU_RESTART   = 2;
-//  private static final int MENU_OPTIONS   = 3;
-//  private static final int MENU_SAVE_QUIT = 4;
-//  private static final int MENU_QUIT      = 5;
-//  private static final int MENU_SOLITAIRE = 6;
-//  private static final int MENU_SPIDER    = 7;
-//  private static final int MENU_FREECELL  = 8;
-//  private static final int MENU_FORTYTHIEVES = 9;
-//  private static final int MENU_STATS     = 10;
-//  private static final int MENU_HELP      = 11;
+import com.kmagic.solitaire.actionbar.ActionBarActivity;
 
+// Base activity class.
+public class Solitaire extends ActionBarActivity {
+  
   // View extracted from main.xml.
   private View mMainView;
   private SolitaireView mSolitaireView;
@@ -58,7 +47,8 @@ public class Solitaire extends Activity {
 
     // Force landscape and no title for extra room
     setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-    requestWindowFeature(Window.FEATURE_NO_TITLE);
+    //requestWindowFeature(Window.FEATURE_NO_TITLE);
+    requestWindowFeature(Window.FEATURE_ACTION_BAR);
 
     // If the user has never accepted the EULA show it again.
     mSettings = getSharedPreferences("SolitairePreferences", 0);
@@ -104,21 +94,8 @@ public class Solitaire extends Activity {
     MenuInflater menuInflater = getMenuInflater();
     menuInflater.inflate(R.menu.main, menu);
 
-    super.onCreateOptionsMenu(menu);
+    return super.onCreateOptionsMenu(menu);
 
-//    SubMenu subMenu = menu.addSubMenu(0, MENU_NEW_GAME, 0, R.string.menu_newgame);
-//    subMenu.add(0, MENU_SOLITAIRE, 0, R.string.menu_solitaire);
-//    subMenu.add(0, MENU_SPIDER, 0, R.string.menu_spider);
-//    subMenu.add(0, MENU_FREECELL, 0, R.string.menu_freecell);
-//    subMenu.add(0, MENU_FORTYTHIEVES, 0, R.string.menu_fortythieves);
-//
-//    menu.add(0, MENU_RESTART, 0, R.string.menu_restart);
-//    menu.add(0, MENU_OPTIONS, 0, R.string.menu_options);
-//    menu.add(0, MENU_SAVE_QUIT, 0, R.string.menu_save_quit);
-//    menu.add(0, MENU_QUIT, 0, R.string.menu_quit);
-//    menu.add(0, MENU_STATS, 0, R.string.menu_stats);
-//    menu.add(0, MENU_HELP, 0, R.string.menu_help);
-    return true;
   }
 
   @Override
@@ -135,6 +112,9 @@ public class Solitaire extends Activity {
         break;
       case R.id.menu_new_fortythieves:
         mSolitaireView.InitGame(Rules.FORTYTHIEVES);
+        break;
+      case R.id.menu_deal:
+        mSolitaireView.dealGame();
         break;
       case R.id.menu_restart:
         mSolitaireView.RestartGame();

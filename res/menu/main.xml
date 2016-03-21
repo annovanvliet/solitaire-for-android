@@ -30,6 +30,11 @@
         
     </item>
     <item
+        android:id="@+id/menu_deal"
+        android:showAsAction="always"
+        android:title="@string/menu_deal">
+    </item>
+    <item
         android:id="@+id/menu_restart"
         android:showAsAction="ifRoom"
         android:title="@string/menu_restart">

@@ -18,8 +18,11 @@
       package="com.kmagic.solitaire"
       android:versionCode="450"
       android:versionName="1.12.2">
-    <uses-sdk android:minSdkVersion="0"></uses-sdk>
-    <application android:icon="@drawable/solitaire_icon" android:label="@string/app_name" android:allowBackup="true">
+    <uses-sdk android:minSdkVersion="11" android:targetSdkVersion="25"/>
+    <application android:icon="@drawable/solitaire_icon" 
+                 android:label="@string/app_name" 
+                 android:allowBackup="true"
+                 android:theme="@style/AppTheme">
         <activity android:name=".Solitaire"
                   android:label="@string/app_name"
                   android:launchMode="singleInstance">

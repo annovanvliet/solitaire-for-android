@@ -15,20 +15,18 @@
 */ 
 package com.kmagic.solitaire;
 
+import java.util.Map;
+import java.util.TreeMap;
+
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
-import android.graphics.Typeface;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
-
-import java.text.DecimalFormat;
-import java.util.Map;
-import java.util.TreeMap;
+import android.widget.TextView;
 
 import com.kmagic.solitaire.Card.SuiteEnum;
 import com.kmagic.solitaire.Card.ValueEnum;
@@ -45,7 +43,7 @@ public class DrawMaster {
 
   // Card stuff
   private final Paint mSuitPaint = new Paint();
-  private Map<SuiteEnum, Map<ValueEnum, Bitmap>> mCardBitmap;
+  private final Map<SuiteEnum, Map<ValueEnum, Bitmap>> mCardBitmap;
   private Bitmap mCardHidden;
 
   private Paint mEmptyAnchorPaint;
@@ -56,10 +54,15 @@ public class DrawMaster {
   private Paint mTimePaint;
   private int mLastSeconds;
   private String mTimeString;
-  private Paint mScorePaint;
+  //private Paint mScorePaint;
 
   private Bitmap mBoardBitmap;
   private Canvas mBoardCanvas;
+
+  private static int WIDTH = 45; //    mScreenWidth = 480; 10
+  private static int HEIGHT = 64; // mScreenHeight = 295; 4
+
+  //private Theme fTheme = null;
 
   public DrawMaster(Context context) {
 
@@ -85,8 +88,8 @@ public class DrawMaster {
     mDoneEmptyAnchorPaint.setARGB(128, 255, 0, 0);
 
     mTimePaint = new Paint();
-    mTimePaint.setTextSize(18);
-    mTimePaint.setTypeface(Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD));
+    mTimePaint.setTextSize(36);
+    //mTimePaint.setTypeface(Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD));
     mTimePaint.setTextAlign(Paint.Align.RIGHT);
     mTimePaint.setAntiAlias(true);
     mLastSeconds = -1;
@@ -95,6 +98,8 @@ public class DrawMaster {
     DrawCards(false);
     mBoardBitmap = Bitmap.createBitmap(mScreenWidth, mScreenHeight, Bitmap.Config.RGB_565);
     mBoardCanvas = new Canvas(mBoardBitmap);
+    
+    //SetSize(mScreenWidth, mScreenHeight);
   }
 
   public int GetWidth() { return mScreenWidth; }
@@ -105,13 +110,17 @@ public class DrawMaster {
     float x = card.GetX();
     float y = card.GetY();
     //int idx = card.getSuit()*13+(card.getValue()-1);
-    canvas.drawBitmap(mCardBitmap.get(card.getSuit()).get(card.getValue()), x, y, mSuitPaint);
+    //canvas.drawBitmap(mCardBitmap.get(card.getSuit()).get(card.getValue()), x, y, mSuitPaint);
+    RectF dest = new RectF(x,y, x + Card.WIDTH,y + Card.HEIGHT);
+    canvas.drawBitmap(mCardBitmap.get(card.getSuit()).get(card.getValue()), null, dest, mSuitPaint);
   }
 
   public void DrawHiddenCard(Canvas canvas, Card card) {
     float x = card.GetX();
     float y = card.GetY();
-    canvas.drawBitmap(mCardHidden, x, y, mSuitPaint);
+    //canvas.drawBitmap(mCardHidden, x, y, mSuitPaint);
+    RectF dest = new RectF(x,y, x + Card.WIDTH,y + Card.HEIGHT);
+    canvas.drawBitmap(mCardHidden, null, dest, mSuitPaint);
   }
 
   public void DrawEmptyAnchor(Canvas canvas, float x, float y, boolean done) {
@@ -140,11 +149,16 @@ public class DrawMaster {
   }
 
   public void SetScreenSize(int width, int height) {
+    
+    Log.i("Drawmaster.java", "size is " + width + "/" + height);
     mScreenWidth = width;
     mScreenHeight = height;
     mBoardBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
     mBoardCanvas = new Canvas(mBoardBitmap);
+    
+    Card.SetSize(width,height);
   }
+  
 
   public void DrawCards(boolean bigCards) {
     if (bigCards) {
@@ -158,61 +172,24 @@ public class DrawMaster {
 
     Paint cardFrontPaint = new Paint();
     Paint cardBorderPaint = new Paint();
-    //Map<SuiteEnum, Bitmap> suit = new TreeMap<Card.SuiteEnum, Bitmap>();
-    //Map<SuiteEnum, Bitmap> bigSuit = new TreeMap<Card.SuiteEnum, Bitmap>();
     Canvas canvas;
-    int width = Card.WIDTH;
-    int height = Card.HEIGHT;
+    int width = WIDTH;
+    int height = HEIGHT;
 
     Drawable drawable = r.getDrawable(R.drawable.cardback);
 
-    mCardHidden = Bitmap.createBitmap(Card.WIDTH, Card.HEIGHT,
+    mCardHidden = Bitmap.createBitmap(WIDTH, HEIGHT,
                                       Bitmap.Config.ARGB_4444);
     canvas = new Canvas(mCardHidden);
-    drawable.setBounds(0, 0, Card.WIDTH, Card.HEIGHT);
+    drawable.setBounds(0, 0, WIDTH, HEIGHT);
     drawable.draw(canvas);
 
     Map<SuiteEnum, Bitmap> suit = fillDrawable(r, canvas, R.drawable.suits, 10, false);
     Map<SuiteEnum, Bitmap> bigSuit = fillDrawable(r, canvas, R.drawable.bigsuits, 25, false);
-//    drawable = r.getDrawable(R.drawable.suits);
-//    int pos = 0;
-//    for (SuiteEnum suite: SuiteEnum.values()) {
-//      suit.put(suite, Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_4444));
-//      canvas = new Canvas(suit.get(suite));
-//      drawable.setBounds(-pos*10, 0, -pos*10+40, 10);
-//      drawable.draw(canvas);
-//      pos++;
-//    }
-//
-//    drawable = r.getDrawable(R.drawable.bigsuits);
-//    pos = 0;
-//    for (SuiteEnum suite: SuiteEnum.values()) {
-//      bigSuit.put(suite, Bitmap.createBitmap(25, 25, Bitmap.Config.ARGB_4444));
-//      canvas = new Canvas(bigSuit.get(suite));
-//      drawable.setBounds(-pos*25, 0, -pos*25+100, 25);
-//      drawable.draw(canvas);
-//      pos++;
-//    }
 
     Map<ValueEnum, Bitmap> blackFont = fillDrawable(r, canvas, R.drawable.bigblackfont, 18, 15, false);
     Map<ValueEnum, Bitmap> redFont = fillDrawable(r, canvas, R.drawable.bigredfont, 18, 15, false);
 
-//    drawable = r.getDrawable(R.drawable.bigblackfont);
-//    for (int i = 0; i < 13; i++) {
-//      blackFont[i] = Bitmap.createBitmap(18, 15, Bitmap.Config.ARGB_4444);
-//      canvas = new Canvas(blackFont[i]);
-//      drawable.setBounds(-i*18, 0, -i*18+234, 15);
-//      drawable.draw(canvas);
-//    }
-//
-//    drawable = r.getDrawable(R.drawable.bigredfont);
-//    for (int i = 0; i < 13; i++) {
-//      redFont[i] = Bitmap.createBitmap(18, 15, Bitmap.Config.ARGB_4444);
-//      canvas = new Canvas(redFont[i]);
-//      drawable.setBounds(-i*18, 0, -i*18+234, 15);
-//      drawable.draw(canvas);
-//    }
-//
     cardBorderPaint.setARGB(255, 0, 0, 0);
     cardFrontPaint.setARGB(255, 255, 255, 255);
     RectF pos = new RectF();
@@ -291,14 +268,7 @@ public class DrawMaster {
 
     Paint cardFrontPaint = new Paint();
     Paint cardBorderPaint = new Paint();
-    //Map<SuiteEnum, Bitmap> suit = new TreeMap<Card.SuiteEnum, Bitmap>();
-    //Map<SuiteEnum, Bitmap> revSuit = new TreeMap<Card.SuiteEnum, Bitmap>();
-//    Map<SuiteEnum, Bitmap> smallSuit = new TreeMap<Card.SuiteEnum, Bitmap>();
-//    Map<SuiteEnum, Bitmap> revSmallSuit = new TreeMap<Card.SuiteEnum, Bitmap>();
-//    Bitmap[] blackFont = new Bitmap[13];
-//    Bitmap[] revBlackFont = new Bitmap[13];
-//    Bitmap[] redFont = new Bitmap[13];
-//    Bitmap[] revRedFont = new Bitmap[13];
+
     Bitmap redJack;
     Bitmap redRevJack;
     Bitmap redQueen;
@@ -312,8 +282,9 @@ public class DrawMaster {
     Bitmap blackKing;
     Bitmap blackRevKing;
     Canvas canvas;
-    final int width = Card.WIDTH;
-    final int height = Card.HEIGHT;
+    
+    final int width = WIDTH;
+    final int height = HEIGHT;
     final int fontWidth;
     final int fontHeight;
     fontWidth = 7;
@@ -326,10 +297,10 @@ public class DrawMaster {
                       };
     Drawable drawable = r.getDrawable(R.drawable.cardback);
 
-    mCardHidden = Bitmap.createBitmap(Card.WIDTH, Card.HEIGHT,
+    mCardHidden = Bitmap.createBitmap(WIDTH, HEIGHT,
                                       Bitmap.Config.ARGB_4444);
     canvas = new Canvas(mCardHidden);
-    drawable.setBounds(0, 0, Card.WIDTH, Card.HEIGHT);
+    drawable.setBounds(0, 0, WIDTH, HEIGHT);
     drawable.draw(canvas);
 
     Map<SuiteEnum, Bitmap> suit = fillDrawable(r, canvas, R.drawable.suits, 10, false);
@@ -338,66 +309,11 @@ public class DrawMaster {
     Map<SuiteEnum, Bitmap> smallSuit = fillDrawable(r, canvas, R.drawable.smallsuits, 5, false);
     Map<SuiteEnum, Bitmap> revSmallSuit = fillDrawable(r, canvas, R.drawable.smallsuits, 5, true);
 
-//    drawable = r.getDrawable(R.drawable.suits);
-//    int pos = 0;
-//    for (SuiteEnum suite: SuiteEnum.values()) {
-//      suit.put(suite, Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_4444));
-//      revSuit.put(suite, Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_4444));
-//      canvas = new Canvas(suit.get(suite));
-//      drawable.setBounds(-pos*10, 0, -pos*10+40, 10);
-//      drawable.draw(canvas);
-//      canvas = new Canvas(revSuit.get(suite));
-//      canvas.rotate(180);
-//      drawable.setBounds(-pos*10-10, -10, -pos*10+30, 0);
-//      drawable.draw(canvas);
-//      pos++;
-//    }
-//
-//    drawable = r.getDrawable(R.drawable.smallsuits);
-//    pos = 0;
-//    for (SuiteEnum suite: SuiteEnum.values()) {
-//      smallSuit.put(suite, Bitmap.createBitmap(5, 5, Bitmap.Config.ARGB_4444));
-//      revSmallSuit.put(suite, Bitmap.createBitmap(5, 5, Bitmap.Config.ARGB_4444));
-//      canvas = new Canvas(smallSuit.get(suite));
-//      drawable.setBounds(-pos*5, 0, -pos*5+20, 5);
-//      drawable.draw(canvas);
-//      canvas = new Canvas(revSmallSuit.get(suite));
-//      canvas.rotate(180);
-//      drawable.setBounds(-pos*5-5, -5, -pos*5+15, 0);
-//      drawable.draw(canvas);
-//      pos++;
-//    }
-
     Map<ValueEnum, Bitmap> blackFont = fillDrawable(r, canvas, R.drawable.medblackfont, 7, 9, false);
     Map<ValueEnum, Bitmap> redFont = fillDrawable(r, canvas, R.drawable.medredfont, 7, 9, false);
     Map<ValueEnum, Bitmap> revBlackFont = fillDrawable(r, canvas, R.drawable.medblackfont, 7, 9, true);
     Map<ValueEnum, Bitmap> revRedFont = fillDrawable(r, canvas, R.drawable.medredfont, 7, 9, true);
 
-//    drawable = r.getDrawable(R.drawable.medblackfont);
-//    for (int i = 0; i < 13; i++) {
-//      blackFont[i] = Bitmap.createBitmap(fontWidth, fontHeight, Bitmap.Config.ARGB_4444);
-//      revBlackFont[i] = Bitmap.createBitmap(fontWidth, fontHeight, Bitmap.Config.ARGB_4444);
-//      canvas = new Canvas(blackFont[i]);
-//      drawable.setBounds(-i*fontWidth, 0, -i*fontWidth+13*fontWidth, fontHeight);
-//      drawable.draw(canvas);
-//      canvas = new Canvas(revBlackFont[i]);
-//      canvas.rotate(180);
-//      drawable.setBounds(-i*fontWidth-fontWidth, -fontHeight, -i*fontWidth+(12*fontWidth), 0);
-//      drawable.draw(canvas);
-//    }
-//
-//    drawable = r.getDrawable(R.drawable.medredfont);
-//    for (int i = 0; i < 13; i++) {
-//      redFont[i] = Bitmap.createBitmap(fontWidth, fontHeight, Bitmap.Config.ARGB_4444);
-//      revRedFont[i] = Bitmap.createBitmap(fontWidth, fontHeight, Bitmap.Config.ARGB_4444);
-//      canvas = new Canvas(redFont[i]);
-//      drawable.setBounds(-i*fontWidth, 0, -i*fontWidth+13*fontWidth, fontHeight);
-//      drawable.draw(canvas);
-//      canvas = new Canvas(revRedFont[i]);
-//      canvas.rotate(180);
-//      drawable.setBounds(-i*fontWidth-fontWidth, -fontHeight, -i*fontWidth+(12*fontWidth), 0);
-//      drawable.draw(canvas);
-//    }
 
     final int faceWidth = width - 20;
     final int faceHeight = height/2 - 9;
@@ -629,17 +545,42 @@ public class DrawMaster {
     canvas.drawText(mTimeString, mScreenWidth-9, mScreenHeight-9, mTimePaint);
     mTimePaint.setARGB(255, 0, 0, 0);
     canvas.drawText(mTimeString, mScreenWidth-10, mScreenHeight-10, mTimePaint);
+    
   }
 
   public void DrawRulesString(Canvas canvas, String score) {
     mTimePaint.setARGB(255, 20, 20, 20);
-    canvas.drawText(score, mScreenWidth-9, mScreenHeight-29, mTimePaint);
+    canvas.drawText(score, mScreenWidth-9, mScreenHeight-39, mTimePaint);
     if (score.charAt(0) == '-') {
       mTimePaint.setARGB(255, 255, 0, 0);
     } else {
       mTimePaint.setARGB(255, 0, 0, 0);
     }
-    canvas.drawText(score, mScreenWidth-10, mScreenHeight-30, mTimePaint);
+    canvas.drawText(score, mScreenWidth-10, mScreenHeight-40, mTimePaint);
 
   }
+
+//  /**
+//   * @param titleView
+//   * @param mElapsed
+//   */
+//  public void writeTime(int millis) {
+//    
+//    TextView titleView = (TextView) mContext.findViewById(R.id.actionbar_compat_item_time);
+//    if (titleView != null) {
+//
+//    int seconds = (millis / 1000) % 60;
+//    int minutes = millis / 60000;
+//    if (seconds != mLastSeconds) {
+//      mLastSeconds = seconds;
+//      // String.format is insanely slow (~15ms)
+//      if (seconds < 10) {
+//        mTimeString = minutes + ":0" + seconds;
+//      } else {
+//        mTimeString = minutes + ":" + seconds;
+//      }
+//    }
+//    titleView.setText(mTimeString);
+//   
+//  }
 }

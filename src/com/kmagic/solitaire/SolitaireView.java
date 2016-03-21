@@ -490,7 +490,7 @@ public class SolitaireView extends View {
     }
     mDrawMaster.DrawLastBoard(canvas);
     if (mDisplayTime) {
-      mDrawMaster.DrawTime(canvas, mElapsed);
+        mDrawMaster.DrawTime(canvas, mElapsed);
     }
     if (mRules.HasString()) {
       mDrawMaster.DrawRulesString(canvas, mRules.GetString());
@@ -537,6 +537,16 @@ public class SolitaireView extends View {
     }
     mRules.HandleEvents();
     return super.onKeyDown(keyCode, msg);
+  }
+  
+  public void dealGame() {
+    if (mViewMode == MODE_TEXT) {
+      ChangeViewMode(MODE_NORMAL);
+    } else if (mViewMode == MODE_NORMAL) {
+      mRules.EventAlert(Rules.EVENT_DEAL, mCardAnchor[0]);
+      Refresh();
+    }
+    mRules.HandleEvents();
   }
 
   @Override

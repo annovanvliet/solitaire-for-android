@@ -15,6 +15,8 @@
 */ 
 package com.kmagic.solitaire;
 
+import android.util.Log;
+
 import com.kmagic.solitaire.Card.SuiteEnum;
 import com.kmagic.solitaire.Card.ValueEnum;
 
@@ -140,16 +142,9 @@ class Card {
 
   }
   
-//  public static final int ACE = 1;
-//  public static final int JACK = 11;
-//  public static final int QUEEN = 12;
-//  public static final int KING = 13;
-//  public static final String TEXT[] = {
-//    "A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"
-//  };
 
-  public static int WIDTH = 45;
-  public static int HEIGHT = 64;
+  public static int WIDTH = 45; //    mScreenWidth = 480; 10
+  public static int HEIGHT = 64; // mScreenHeight = 295; 4
 
   private final ValueEnum mValue;
   private final SuiteEnum mSuit;
@@ -157,18 +152,32 @@ class Card {
   private float mY;
 
   public static void SetSize(int type) {
-    if (type == Rules.SOLITAIRE) {
-      WIDTH = 51;
-      HEIGHT = 72;
-    } else if (type == Rules.FREECELL) {
-      WIDTH = 49;
-      HEIGHT = 68;
-    } else {
-      WIDTH = 45;
-      HEIGHT = 64;
-    }
+//    if (type == Rules.SOLITAIRE) {
+//      WIDTH = 51;
+//      HEIGHT = 72;
+//    } else if (type == Rules.FREECELL) {
+//      WIDTH = 49;
+//      HEIGHT = 68;
+//    } else {
+//      WIDTH = 45;
+//      HEIGHT = 64;
+//    }
   }
 
+  /**
+   * @param width2
+   * @param height2
+   */
+  public static void SetSize(int width2, int height2) {
+    Log.d("Card.java", "SetSize");
+    
+    WIDTH = width2/11;
+    HEIGHT = (WIDTH*64)/45;
+        
+  }
+
+ 
+  
   public Card(ValueEnum value, SuiteEnum suit) {
     mValue = value;
     mSuit = suit;
@@ -207,6 +216,7 @@ class Card {
     return ((this.getSuit().isRed()) == (previous.getSuit().isRed()) ||
         this.getValue().isPrevious(previous.getValue()));
   }
+
 }
 
 
